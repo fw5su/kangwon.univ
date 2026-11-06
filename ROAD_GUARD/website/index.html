@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="실제 국립공원 로드킬 기록과 반도체 센서·엣지 AI 감지 시뮬레이션을 함께 체험하는 ROAD GUARD 교육용 웹 프로토타입">
+  <title>ROAD GUARD | 기술로 지키는 생명의 길</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <link rel="stylesheet" href="./css/style.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
+  <script src="./js/map.js" defer></script>
+  <script src="./js/simulation.js" defer></script>
+  <script src="./js/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">본문으로 바로가기</a>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="ROAD GUARD 홈">
+      <span class="brand-mark" aria-hidden="true">↟</span>
+      <span>ROAD <strong>GUARD</strong><small>WILDLIFE SAFETY LAB</small></span>
+    </a>
+    <nav class="main-nav" aria-label="주 메뉴">
+      <a href="#safety-map">사고 기록 지도</a>
+      <a href="#ai-demo">AI 감지 체험</a>
+      <a href="#learning">기술 교육</a>
+      <a href="#campaign">프로젝트 영상</a>
+    </nav>
+    <span class="header-badge">교육용 프로토타입</span>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top" aria-labelledby="hero-title">
+      <div class="hero-inner">
+        <p class="eyebrow light">AI · SEMICONDUCTOR · WILDLIFE</p>
+        <h1 id="hero-title">보이지 않는 위험을<br><em>먼저 발견하는 기술.</em></h1>
+        <p class="hero-copy">과거 로드킬 데이터를 지도에서 확인하고,<br>반도체 센서와 엣지 AI가 야생동물을 감지하는 과정을 체험해 보세요.</p>
+        <div class="hero-actions">
+          <a class="button button-lime" href="#safety-map">지도 탐색하기 <span aria-hidden="true">↗</span></a>
+          <a class="button button-ghost" href="#ai-demo">AI 감지 체험 <span aria-hidden="true">→</span></a>
+        </div>
+        <div class="hero-note">과거 사고 데이터 + 가상 AI 감지 시뮬레이션을 구분해 제공합니다.</div>
+      </div>
+      <div class="hero-decoration" aria-hidden="true"><div class="radar radar-one"></div><div class="radar radar-two"></div><div class="radar radar-three"></div><div class="radar-center">✳</div></div>
+    </section>
+
+    <section class="workspace section-wrap" id="safety-map" aria-labelledby="map-title">
+      <div class="section-heading">
+        <div><p class="eyebrow">01 / DATA EXPLORER</p><h2 id="map-title">국립공원 로드킬 기록 지도</h2><p>2011~2023년 국립공원공단 공개 기록 · 과거 조사 기록이며 실시간 위험 예측이 아닙니다.</p></div>
+        <span class="data-source">DATA SOURCE · 국립공원공단</span>
+      </div>
+      <div id="loadError" class="notice error" role="alert" hidden>데이터를 불러오지 못했습니다. README 안내대로 로컬 서버로 실행했는지 확인해 주세요.</div>
+      <div class="filter-bar" aria-label="사고 기록 필터">
+        <label>국립공원 <select id="parkFilter"><option value="">전체 국립공원</option></select></label>
+        <label>동물 종류 <select id="speciesFilter"><option value="">전체 동물</option></select></label>
+        <label>조사 연도 <select id="yearFilter"><option value="">전체 연도</option></select></label>
+        <button id="clearFilters" type="button" class="button-reset">↺ 필터 초기화</button>
+      </div>
+      <div class="metric-grid" aria-label="현재 필터 기록 요약">
+        <div class="metric"><span>조회된 사고 기록</span><strong id="recordCount">—</strong><small>건 · 중복 후보 포함</small></div>
+        <div class="metric"><span>표시된 좌표</span><strong id="siteCount">—</strong><small>개 지점</small></div>
+        <div class="metric"><span>국립공원</span><strong id="parkCount">—</strong><small>개 공원</small></div>
+        <div class="metric"><span>기록된 동물 종류</span><strong id="speciesCount">—</strong><small>종</small></div>
+      </div>
+      <div class="map-layout">
+        <article class="card map-card">
+          <div class="card-heading"><div><h3>사고 기록 위치</h3><p>지도에서 파란 원을 누르면 해당 좌표에 연결된 기록을 확인할 수 있어요.</p></div><button type="button" class="button-lite" id="fitResults">조회 지점 보기</button></div>
+          <div class="map-frame"><div id="map" role="region" aria-label="국립공원 로드킬 과거 사고 기록 지도"></div><div class="map-watermark">ROAD GUARD · Historical data</div></div>
+          <div class="map-legend"><span><i class="legend-dot historical"></i>과거 사고 기록</span><span><i class="legend-dot simulated"></i>가상 센서 위치</span><span><i class="legend-dot warning"></i>시뮬레이션 경고</span></div>
+          <div class="map-footer-note">같은 좌표에 여러 건이 기록되어 있습니다. 원의 크기는 해당 좌표의 기록 건수를 나타내며 사고 위험도를 뜻하지 않습니다.</div>
+        </article>
+        <aside id="ai-demo" class="card sensor-panel" aria-labelledby="sensor-heading">
+          <div class="sensor-top"><div><p class="eyebrow">02 / EXPERIENCE</p><h3 id="sensor-heading">엣지 AI 센서 모니터링</h3></div><span class="demo-tag">SIMULATION</span></div>
+          <p class="sensor-guide">아래 장치는 모두 <b>가상의 센서</b>입니다. 실제 감지 장비가 연결된 서비스는 아닙니다.</p>
+          <label class="control-label" for="sensorSelect">시연 센서 선택</label>
+          <select id="sensorSelect" class="sensor-select" aria-label="시연할 가상 센서 선택"><option value="">센서 불러오는 중...</option></select>
+          <div class="sensor-location" id="sensorDescription">센서 위치를 선택해 주세요.</div>
+          <div id="statusBox" class="sensor-status" aria-live="polite"><span class="status-overline" id="statusOverline">● 시뮬레이션 준비</span><strong id="statusTitle">감지 대기 중</strong><p id="statusDescription">시뮬레이션 시작 버튼으로 감지 과정을 체험해 보세요.</p></div>
+          <div class="telemetry"><div><span>분류된 대상</span><b id="speciesValue">—</b></div><div><span>AI 판단 단계</span><b id="aiValue">대기</b></div><div><span>운전자 경고</span><b id="warningValue">꺼짐</b></div></div>
+          <p class="control-label">동작 과정</p>
+          <ol class="step-list"><li id="simStep0">① 센서 정보 수집</li><li id="simStep1">② 엣지 AI 분석</li><li id="simStep2">③ 위험 조건 판단</li><li id="simStep3">④ 전광판 경고</li></ol>
+          <div class="sim-buttons"><button type="button" id="simulate" class="button button-forest">▶ 감지 시뮬레이션 시작</button><button type="button" id="reset" class="button button-outline">초기화</button></div>
+          <div class="disclaimer">※ AI 탐지, 신뢰도, 위험 경고 결과는 교육을 위한 가상 시나리오입니다. 실제 동물 감지나 사고 예측 결과가 아닙니다.</div>
+        </aside>
+      </div>
+      <div class="details-grid">
+        <article class="card detail-card"><div class="card-heading"><div><h3>선택한 기록 지점</h3><p>마커를 선택하면 이곳에도 상세 요약이 표시됩니다.</p></div></div><div id="siteDetail" class="detail-empty">지도의 파란 사고 기록 마커를 클릭해 보세요.</div></article>
+        <article class="card detail-card"><div class="card-heading"><div><h3>국립공원별 기록 TOP 5</h3><p>현재 적용된 필터 조건 기준</p></div></div><div id="parkRanking" class="ranking-list"><p class="muted">데이터를 불러오는 중...</p></div></article>
+      </div>
+    </section>
+
+    <section id="learning" class="learning-section section-wrap" aria-labelledby="learn-title">
+      <div class="section-heading"><div><p class="eyebrow">03 / LEARN THE TECH</p><h2 id="learn-title">고라니를 발견한 건 누구일까?</h2><p>어려운 반도체·AI 개념을 로드킬 예방 사례로 쉽게 배워보세요.</p></div><span class="data-source">교육 카드뉴스 · 7장</span></div>
+      <div class="education-layout card"><div class="education-visual"><img id="cardImage" alt="" hidden><div id="cardFallback" class="card-illustration" aria-hidden="true"><span id="cardSymbol">◉</span><small>ROAD GUARD · TECH CLASS</small></div></div><div class="education-info"><span class="education-counter" id="cardCounter">01 / 07</span><h3 id="cardTitle">반도체가 어떻게 동물을 발견할까요?</h3><p id="cardBody">카메라의 이미지 센서는 빛을 전기 신호로 바꿔요.</p><div class="tech-term" id="cardTerm">핵심 용어 · CMOS 이미지 센서</div><div class="card-controls"><button id="prevCard" type="button" class="button button-outline">← 이전</button><button id="nextCard" type="button" class="button button-forest">다음 →</button></div><p class="muted fine">현재는 웹용 교육 문구로 구성되어 있습니다. 카드뉴스 PNG가 완성되면 자동으로 이미지가 표시됩니다.</p></div></div>
+    </section>
+
+    <section id="campaign" class="campaign-section section-wrap" aria-labelledby="film-title"><div class="section-heading"><div><p class="eyebrow">04 / CAMPAIGN FILM</p><h2 id="film-title">1초 먼저 발견했다면</h2><p>공익광고 영상으로 기술이 지켜낼 수 있는 생명을 이야기합니다.</p></div></div><div class="campaign-layout"><div class="campaign-screen"><video id="campaignVideo" controls preload="metadata" playsinline hidden><source src="./assets/video/roadguard_campaign.mp4" type="video/mp4">동영상을 지원하지 않는 브라우저입니다.</video><div id="videoPlaceholder" class="video-placeholder"><span class="video-play">▶</span><strong>프로젝트 영상 영역</strong><span>`assets/video/roadguard_campaign.mp4` 추가 시 영상이 표시됩니다.</span></div></div><div class="campaign-aside"><span class="capsule">OUR MESSAGE</span><h3>기술이 먼저 알아채는 순간,<br>생명을 지킬 기회가 생깁니다.</h3><p>로드킬 문제를 다루는 공익 영상과 실제 사고 데이터, 반도체 기술 설명을 하나의 체험형 교육 콘텐츠로 연결했습니다.</p><div class="campaign-tags"><span>생명 보호</span><span>엣지 AI</span><span>센서 반도체</span></div></div></div></section>
+
+    <section class="info-strip section-wrap"><div><h2>데이터와 시뮬레이션, 정확하게 구분합니다.</h2><p>사고 기록은 국립공원공단 공개 자료에 근거하지만, 가상의 센서 위치와 AI 경고는 실제 측정값이 아닙니다. 반복 조사된 좌표는 개별 사고 지점과 다를 수 있습니다.</p></div><a href="https://www.data.go.kr/data/3068387/fileData.do" target="_blank" rel="noopener noreferrer">공공데이터 출처 ↗</a></section>
+  </main>
+  <footer class="footer"><span>© ROAD GUARD · AX Challenge Educational Prototype</span><span>과거 데이터 기준 · 2023-12-20 제공 자료</span></footer>
+</body>
+</html>

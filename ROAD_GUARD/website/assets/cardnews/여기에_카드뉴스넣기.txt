@@ -1,0 +1,11 @@
+카드뉴스가 완성되면 아래 이름으로 PNG 파일 7장을 넣으세요.
+card_01.png
+card_02.png
+card_03.png
+card_04.png
+card_05.png
+card_06.png
+card_07.png
+
+website/js/app.js에서 const USE_CARD_IMAGES = false; 를 true로 변경하세요.
+이미지가 없을 때는 웹사이트가 기존 교육 문구 화면으로 동작합니다.
